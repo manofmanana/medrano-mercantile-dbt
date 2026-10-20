@@ -1,0 +1,14 @@
+# Copy to ~/.dbt/profiles.yml and set DBT_PASSWORD in your environment.
+medrano:
+  target: prod
+  outputs:
+    prod:
+      type: postgres
+      host: 192.168.1.120          # mercantile-pg on CT 111
+      port: 5432
+      user: dbt
+      password: "{{ env_var('DBT_PASSWORD') }}"
+      dbname: mercantile
+      schema: marts                # fallback; models set staging/marts explicitly
+      threads: 4
+      connect_timeout: 10

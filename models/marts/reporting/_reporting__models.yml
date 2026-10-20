@@ -1,0 +1,86 @@
+version: 2
+
+models:
+  - name: rpt_kpis
+    description: Single row of headline KPIs for the dashboard's number tiles.
+    data_tests:
+      - row_count_is:
+          arguments:
+            expected: 1
+    columns:
+      - name: total_revenue
+        description: Lifetime gross sales.
+      - name: total_profit
+        description: Lifetime net profit.
+      - name: profit_margin
+        description: Total profit ÷ total revenue.
+      - name: avg_days_to_sell
+        description: Average days from listed to sold.
+      - name: revenue_30d
+        description: Sales in the last 30 days.
+      - name: revenue_prev_30d
+        description: Sales in the 30 days before that.
+      - name: revenue_30d_change_pct
+        description: Change from the prior 30 days to the last 30.
+      - name: open_items
+        description: Items not yet sold.
+      - name: open_inventory_value
+        description: Sum of asking prices for unsold items.
+      - name: stale_items
+        description: Unsold items on hand longer than the stale threshold.
+      - name: sell_through_rate
+        description: Items sold ÷ all items taken in.
+      - name: refreshed_at
+        description: When dbt last rebuilt this table.
+
+  - name: rpt_sales_monthly
+    description: One row per calendar month (zero-filled), with running totals and month-over-month change.
+    columns:
+      - name: month_start
+        description: First day of the month.
+        data_tests: [unique, not_null]
+      - name: items_received
+        description: Items taken in that month.
+      - name: items_sold
+        description: Items sold that month.
+      - name: revenue
+        description: Gross sales.
+      - name: net_profit
+        description: Net profit.
+      - name: cumulative_revenue
+        description: Running total of revenue.
+      - name: cumulative_profit
+        description: Running total of net profit.
+      - name: revenue_mom_change_pct
+        description: Revenue change vs the previous month.
+
+  - name: rpt_category_performance
+    description: One row per category — sales, open stock, margin and sell-through.
+    columns:
+      - name: category
+        description: Product category.
+        data_tests: [unique, not_null]
+      - name: sell_through_rate
+        description: Share of the category's items that have sold.
+        data_tests:
+          - between:
+              arguments:
+                min_value: 0
+                max_value: 1
+
+  - name: rpt_platform_performance
+    description: One row per sales platform.
+    columns:
+      - name: platform
+        description: Sales platform (`Unknown` when not recorded).
+        data_tests: [unique, not_null]
+
+  - name: rpt_consignor_payouts
+    description: One row per consignor — items placed, sold, and payout owed.
+    columns:
+      - name: consignor
+        description: Consignor name.
+        data_tests: [unique, not_null]
+      - name: payout_owed
+        description: Lifetime amount owed to the consignor for sold items.
+        data_tests: [non_negative]

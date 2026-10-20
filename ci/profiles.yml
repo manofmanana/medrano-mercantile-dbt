@@ -1,0 +1,13 @@
+# Used by GitHub Actions for `dbt parse`, which never connects to a database.
+medrano:
+  target: ci
+  outputs:
+    ci:
+      type: postgres
+      host: localhost
+      port: 5432
+      user: ci
+      password: ci
+      dbname: ci
+      schema: marts
+      threads: 1

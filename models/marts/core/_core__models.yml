@@ -1,0 +1,95 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: Daily calendar from the first item received through today.
+    columns:
+      - name: date_day
+        description: Calendar day (primary key).
+        data_tests: [unique, not_null]
+      - name: week_start
+        description: Monday of the ISO week.
+      - name: month_start
+        description: First day of the month.
+      - name: quarter_start
+        description: First day of the quarter.
+      - name: month_label
+        description: "Display label, e.g. `Oct 2026`."
+      - name: is_weekend
+        description: True on Saturday and Sunday.
+
+  - name: dim_items
+    description: >
+      One row per item with lifecycle dates, holding time and — for sold
+      items — consignor payout and net profit.
+      **Net profit** = sale price − consignor payout − fees − acquisition cost.
+    columns:
+      - name: sku
+        description: Business key.
+        data_tests: [unique, not_null]
+      - name: days_in_inventory
+        description: Days from received to sold (or to today if unsold).
+        data_tests: [non_negative]
+      - name: days_listed
+        description: Days from listed to sold (or to today if unsold).
+        data_tests: [non_negative]
+      - name: consignor_payout
+        description: Amount owed to the consignor for a sold item (0 for owned stock).
+        data_tests: [not_null, non_negative]
+      - name: net_profit
+        description: Profit kept by the business on a sold item; null while unsold.
+
+  - name: fct_sales
+    description: One row per sold item. Use this for revenue, profit and sell-time analysis.
+    columns:
+      - name: sku
+        description: Business key.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_items')
+                field: sku
+      - name: sold_date
+        description: Date of sale.
+        data_tests: [not_null]
+      - name: sold_month
+        description: First day of the month the item sold in.
+      - name: sale_price
+        description: Gross sale price.
+        data_tests: [not_null, non_negative]
+      - name: house_revenue
+        description: Sale price minus the consignor's share.
+      - name: net_profit
+        description: Sale price − consignor payout − fees − acquisition cost.
+        data_tests: [not_null]
+      - name: profit_margin
+        description: Net profit ÷ sale price.
+      - name: discount_amount
+        description: Asking price − sale price (positive = sold below ask).
+      - name: discount_pct
+        description: Discount as a share of the asking price.
+      - name: days_to_sell_from_received
+        description: Days from received to sold.
+      - name: days_to_sell_from_listed
+        description: Days from first listed to sold.
+
+  - name: fct_inventory
+    description: One row per unsold item, with aging buckets and potential profit at asking price.
+    columns:
+      - name: sku
+        description: Business key.
+        data_tests: [unique, not_null]
+      - name: aging_bucket
+        description: Days on hand, grouped (0–30, 31–60, 61–90, 90+).
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["0–30 days", "31–60 days", "61–90 days", "90+ days"]
+      - name: aging_bucket_order
+        description: Sort key for `aging_bucket`.
+      - name: is_stale
+        description: "True when on hand longer than `var('stale_inventory_days')` (default 60)."
+      - name: potential_profit
+        description: Profit if sold at asking price (after consignor share and acquisition cost; before fees).

@@ -1,0 +1,37 @@
+version: 2
+
+sources:
+  - name: mercantile
+    description: >
+      Operational inventory ledger for Medrano Mercantile, stored in the
+      `mercantile` Postgres database (container `mercantile-pg` on CT 111).
+      One row per physical item, updated in place as it moves through
+      Received → Listed → Sold.
+    schema: public
+    tables:
+      - name: items
+        description: Every item the business has taken in, owned or consigned.
+        config:
+          loaded_at_field: "nullif(updated_at, '')::timestamptz"
+          freshness:
+            warn_after: {count: 30, period: day}
+        columns:
+          - name: sku
+            description: "Business key, formatted `YYMMDD-NNN` (date received + sequence)."
+            data_tests: [unique, not_null]
+          - name: status
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values: ["Received", "Listed", "Sold"]
+          - name: owner_split
+            description: Consignor's share of the sale price (0–1). Null for owned inventory.
+          - name: date_received
+            description: Stored as text (`YYYY-MM-DD` or empty string); cast in staging.
+          - name: date_listed
+            description: Stored as text (`YYYY-MM-DD` or empty string); cast in staging.
+          - name: date_sold
+            description: Stored as text (`YYYY-MM-DD` or empty string); cast in staging.
+          - name: updated_at
+            description: Last edit time, stored as text; cast in staging.
