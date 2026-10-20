@@ -1,0 +1,37 @@
+name: dbt CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  parse:
+    name: Parse & validate project
+    runs-on: ubuntu-latest
+    env:
+      DBT_PROFILES_DIR: ci
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dbt
+        run: pip install "dbt-core~=1.12.0" "dbt-postgres~=1.11.0"
+
+      - name: dbt parse
+        run: dbt parse --warn-error
+
+      - name: Check every model is documented
+        run: |
+          python - <<'PY'
+          import json, sys
+          m = json.load(open("target/manifest.json"))
+          missing = [n["name"] for n in m["nodes"].values()
+                     if n["resource_type"] == "model" and not n["description"].strip()]
+          if missing:
+              sys.exit(f"Models missing descriptions: {missing}")
+          print("All models documented.")
+          PY

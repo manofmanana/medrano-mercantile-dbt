@@ -1,0 +1,63 @@
+version: 2
+
+models:
+  - name: stg_mercantile__items
+    description: >
+      Cleaned, typed copy of `public.items`: trimmed text, real `date` /
+      `timestamptz` columns, normalized categories (`Sporting-Goods` → `Sports`)
+      and explicit `Unknown` / `Self` defaults instead of blanks.
+    columns:
+      - name: sku
+        description: Business key (`YYMMDD-NNN`).
+        data_tests: [unique, not_null]
+      - name: category
+        description: Normalized product category.
+        data_tests: [not_null]
+      - name: status
+        description: Lifecycle stage.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["Received", "Listed", "Sold"]
+      - name: source_type
+        description: How the item was acquired.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Owned Inventory", "Consignment", "Donation"]
+      - name: consignor
+        description: Who owns the item. `Self` for the business's own stock.
+      - name: platform
+        description: Where the item sold or is listed. `Unknown` when not recorded.
+      - name: consignor_split
+        description: Consignor's share of the sale price (0–1); null for owned inventory.
+        data_tests:
+          - between:
+              arguments:
+                min_value: 0
+                max_value: 1
+      - name: acquisition_cost
+        description: What the business paid for the item.
+        data_tests: [non_negative]
+      - name: asking_price
+        description: Listed price.
+        data_tests: [non_negative]
+      - name: sale_price
+        description: Final sale price (sold items only).
+        data_tests: [non_negative]
+      - name: fees_costs
+        description: Platform fees, shipping and other selling costs.
+        data_tests: [non_negative]
+      - name: received_date
+        description: Date the item came in.
+      - name: listed_date
+        description: Date the item was first listed.
+      - name: sold_date
+        description: Date the item sold.
+      - name: updated_at
+        description: Last time the row was edited in the source.
+      - name: is_consignment
+        description: True when the item belongs to a consignor.
+      - name: is_sold
+        description: True when status is `Sold`.
