@@ -36,7 +36,20 @@ flowchart LR
 | dbt runner | Data-Lab (VM 110, `192.168.1.128`) | `/opt/dbt-projects/medrano`, venv at `/opt/dbt` |
 | Schedule | `dbt-nightly.timer` | 04:00 daily: `git pull` → `dbt build` → `dbt docs generate` |
 | Docs site | http://dbt.home · http://192.168.1.128:8081 | Lineage graph and column docs |
-| Dashboard | Metabase on CT 111 (`:3000`) | Reads only from `marts.*` |
+| Dashboard | [Business Overview](http://192.168.1.120:3000/dashboard/35) (Metabase, CT 111) | Reads only from `marts.*`; declared as a dbt exposure |
+
+### The dashboard
+
+**Medrano Mercantile — Business Overview** (full width, filterable by *Sold date*, *Category* and *Platform*):
+
+| Section | Cards |
+|---|---|
+| Header | Title, links to this repo and the docs, last dbt refresh time |
+| Sales performance | Revenue · Net profit · Items sold · Avg sale price · Avg days to sell · Profit margin · month-over-month revenue and items · sell-through gauge · revenue & profit by month · cumulative revenue · revenue by category · revenue by platform |
+| Inventory | Open items · value at ask · potential profit · stale items · aging buckets · sell-through by category · oldest unsold items |
+| Consignment & top sales | Consignor payouts · top 10 sales |
+
+Every card is a native SQL question over `marts.*` with Metabase field filters, so all three dashboard filters apply wherever they make sense.
 
 ---
 
