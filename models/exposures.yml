@@ -1,0 +1,21 @@
+version: 2
+
+exposures:
+  - name: business_overview_dashboard
+    label: Medrano Mercantile — Business Overview
+    type: dashboard
+    maturity: high
+    url: http://192.168.1.120:3000/dashboard/35
+    description: >
+      Main Metabase dashboard: sales KPIs and trends, category and platform
+      breakdowns, inventory aging and stale stock, consignor payouts and top
+      sales. Filterable by sold date, category and platform.
+    depends_on:
+      - ref('fct_sales')
+      - ref('fct_inventory')
+      - ref('dim_items')
+      - ref('rpt_kpis')
+      - ref('rpt_consignor_payouts')
+    owner:
+      name: Alejandro Medrano
+      email: alexinesm@gmail.com
