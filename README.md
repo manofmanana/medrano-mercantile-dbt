@@ -10,6 +10,20 @@ business. This project turns the raw inventory ledger into clean, tested tables
 that power the Metabase dashboard: revenue, profit, sell-through, inventory aging
 and consignor payouts.
 
+![Business Overview dashboard: KPIs and quick actions](docs/images/dashboard-overview.png)
+
+<details>
+<summary><b>More of the dashboard</b> — monthly trends, categories, platforms, inventory</summary>
+
+![Revenue and profit by month, cumulative revenue](docs/images/dashboard-trends.png)
+
+![Revenue by category and platform, inventory KPIs](docs/images/dashboard-categories-inventory.png)
+
+</details>
+
+> The dashboard runs on a private homelab, so it isn't publicly reachable — these are
+> live screenshots. Consignor details are intentionally left out.
+
 ---
 
 ## Architecture
@@ -45,6 +59,7 @@ flowchart LR
 | Section | Cards |
 |---|---|
 | Header | Title, links to this repo and the docs, last dbt refresh time |
+| Quick actions | **Log new item** (auto-generates the `YYMMDD-NNN` SKU) · **Mark item sold** · **Change asking price** — Metabase actions writing to `public.items` through an insert/update-only role (no deletes) |
 | Sales performance | Revenue · Net profit · Items sold · Avg sale price · Avg days to sell · Profit margin · month-over-month revenue and items · sell-through gauge · revenue & profit by month · cumulative revenue · revenue by category · revenue by platform |
 | Inventory | Open items · value at ask · potential profit · stale items · aging buckets · sell-through by category · oldest unsold items |
 | Consignment & top sales | Consignor payouts · top 10 sales |
@@ -179,6 +194,8 @@ dbt docs generate && dbt docs serve           # browse lineage locally
 | Role | Can do |
 |---|---|
 | `dbt` | Read `public`; owns and writes `staging` and `marts` |
+| `metabase_ro` | Read-only; what Metabase's dashboards query with |
+| `metabase_writer` | `SELECT` / `INSERT` / `UPDATE` on `public.items` only — used by the dashboard's action buttons |
 | everyone else | Read `staging` and `marts` (via default privileges) |
 
 The legacy `analytics` schema (built by the old Airflow DAG on CT 111) is left in place for now; nothing in this project reads from or writes to it.

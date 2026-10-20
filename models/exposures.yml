@@ -18,4 +18,3 @@ exposures:
       - ref('rpt_consignor_payouts')
     owner:
       name: Alejandro Medrano
-      email: alexinesm@gmail.com
