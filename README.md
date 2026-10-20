@@ -21,7 +21,7 @@ flowchart LR
         MB["Metabase<br/>:3000"]
     end
     subgraph VM110["VM 110 · Data-Lab"]
-        TIMER["systemd timer<br/>04:00 nightly"] --> DBT["dbt Core 1.12"]
+        TIMER["systemd timer<br/>every 15 min"] --> DBT["dbt Core 1.12"]
         DBT --> DOCS["dbt docs<br/>:8081"]
     end
     GH["GitHub<br/>this repo"] -- git pull --> DBT
@@ -34,7 +34,7 @@ flowchart LR
 |---|---|---|
 | Source data | `mercantile` DB → `public.items` | One row per item, edited in place |
 | dbt runner | Data-Lab (VM 110, `192.168.1.128`) | `/opt/dbt-projects/medrano`, venv at `/opt/dbt` |
-| Schedule | `dbt-nightly.timer` | 04:00 daily: `git pull` → `dbt build` → `dbt docs generate` |
+| Schedule | `dbt-nightly.timer` | Every 15 minutes: `git pull` → `dbt build` → `dbt docs generate` |
 | Docs site | http://dbt.home · http://192.168.1.128:8081 | Lineage graph and column docs |
 | Dashboard | [Business Overview](http://192.168.1.120:3000/dashboard/35) (Metabase, CT 111) | Reads only from `marts.*`; declared as a dbt exposure |
 
@@ -122,7 +122,7 @@ showing the last good numbers instead of bad ones.
 ### On Data-Lab (production)
 
 ```bash
-sudo systemctl start dbt-nightly.service      # run now, same as the 04:00 job
+sudo systemctl start dbt-nightly.service      # run now, same as the scheduled job
 tail -f /var/log/dbt/nightly.log              # watch it
 systemctl list-timers dbt-nightly.timer       # next scheduled run
 ```
@@ -145,7 +145,7 @@ dbt docs generate && dbt docs serve           # browse lineage locally
 
 1. Branch, edit models, run `dbt build -s state:modified+` locally.
 2. Open a PR — CI runs `dbt parse --warn-error` and checks every model is documented.
-3. Merge to `main`. Data-Lab pulls and builds it at the next 04:00 run (or run it now with the command above).
+3. Merge to `main`. Data-Lab pulls and builds it within 15 minutes (or run it now with the command above).
 
 ---
 
