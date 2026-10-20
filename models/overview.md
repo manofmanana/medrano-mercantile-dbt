@@ -13,6 +13,6 @@ dashboard.
 
 **Net profit** = sale price − consignor payout − fees − acquisition cost.
 
-Built nightly at 04:00 by `dbt-nightly.timer` on Data-Lab (VM 110).
+Rebuilt every 15 minutes by `dbt-nightly.timer` on Data-Lab (VM 110).
 Source: [github.com/manofmanana/medrano-mercantile-dbt](https://github.com/manofmanana/medrano-mercantile-dbt).
 {% enddocs %}
