@@ -1,5 +1,7 @@
 # Medrano Mercantile — dbt
 
+Part of [Medrano Mercantile](https://github.com/manofmanana/medrano-mercantile), which adds the ML pipeline, Airflow orchestration and a public dashboard on top of these models.
+
 [![dbt CI](https://github.com/manofmanana/medrano-mercantile-dbt/actions/workflows/ci.yml/badge.svg)](https://github.com/manofmanana/medrano-mercantile-dbt/actions/workflows/ci.yml)
 ![dbt](https://img.shields.io/badge/dbt_Core-1.12-FF694B?logo=dbt&logoColor=white)
 ![Postgres](https://img.shields.io/badge/Postgres-16-4169E1?logo=postgresql&logoColor=white)
