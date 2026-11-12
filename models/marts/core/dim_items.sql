@@ -17,6 +17,8 @@ select
     is_consignment,
     is_sold,
     platform,
+    buyer,
+    haul,
 
     received_date,
     listed_date,

@@ -24,6 +24,7 @@ renamed as (
         coalesce(nullif(btrim(consignor), ''), 'Self')          as consignor,
         coalesce(nullif(btrim(platform), ''), 'Unknown')        as platform,
         nullif(btrim(buyer), '')                                as buyer,
+        nullif(btrim(haul), '')                                 as haul,
         nullif(btrim(notes), '')                                as notes,
 
         -- money
@@ -33,11 +34,12 @@ renamed as (
         sale_price::numeric(12, 2)                              as sale_price,
         coalesce(fees_costs, 0)::numeric(12, 2)                 as fees_costs,
 
-        -- dates
-        nullif(date_received, '')::date                         as received_date,
-        nullif(date_listed, '')::date                           as listed_date,
-        nullif(date_sold, '')::date                             as sold_date,
-        nullif(updated_at, '')::timestamptz                     as updated_at
+        -- dates: the ::text round trip accepts both the old text columns
+        -- (with '' for missing) and the native date / timestamptz columns
+        nullif(date_received::text, '')::date                   as received_date,
+        nullif(date_listed::text, '')::date                     as listed_date,
+        nullif(date_sold::text, '')::date                       as sold_date,
+        nullif(updated_at::text, '')::timestamptz               as updated_at
 
     from source
 

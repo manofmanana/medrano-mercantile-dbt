@@ -30,6 +30,10 @@ models:
         description: Who owns the item. `Self` for the business's own stock.
       - name: platform
         description: Where the item sold or is listed. `Unknown` when not recorded.
+      - name: buyer
+        description: Who bought the item, when recorded. Null otherwise.
+      - name: haul
+        description: Sourcing event the item came from. Null when untagged.
       - name: consignor_split
         description: Consignor's share of the sale price (0–1); null for owned inventory.
         data_tests:
@@ -61,3 +65,26 @@ models:
         description: True when the item belongs to a consignor.
       - name: is_sold
         description: True when status is `Sold`.
+
+  - name: stg_mercantile__labor_log
+    description: >
+      One row per logged block of work, with blank hauls and activities
+      normalized. Hours are real logs, never estimates.
+    columns:
+      - name: entry_id
+        description: Primary key.
+        data_tests: [unique, not_null]
+      - name: work_date
+        description: Day the work was done.
+        data_tests: [not_null]
+      - name: hours
+        description: Hours worked.
+        data_tests: [not_null]
+      - name: haul
+        description: Sourcing event the time was spent on. Null for general work.
+      - name: activity
+        description: What the time was spent on.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Sourcing / pickup", "Cleaning / testing", "Photos & listing", "Messages & meetups", "Shipping", "Admin", "General"]

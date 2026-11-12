@@ -12,7 +12,7 @@ sources:
       - name: items
         description: Every item the business has taken in, owned or consigned.
         config:
-          loaded_at_field: "nullif(updated_at, '')::timestamptz"
+          loaded_at_field: "nullif(updated_at::text, '')::timestamptz"
           freshness:
             warn_after: {count: 30, period: day}
         columns:
@@ -27,11 +27,34 @@ sources:
                     values: ["Received", "Listed", "Sold"]
           - name: owner_split
             description: Consignor's share of the sale price (0–1). Null for owned inventory.
+          - name: haul
+            description: >
+              Name of the sourcing event the item came from (for example
+              "Din Tai Fung office haul"). Free text; null when not tagged.
+          - name: buyer
+            description: Who bought the item, when recorded. Kept private.
           - name: date_received
-            description: Stored as text (`YYYY-MM-DD` or empty string); cast in staging.
+            description: Date received. A `date` since the 2026-11 migration (text before).
           - name: date_listed
-            description: Stored as text (`YYYY-MM-DD` or empty string); cast in staging.
+            description: Date first listed. A `date` since the 2026-11 migration (text before).
           - name: date_sold
-            description: Stored as text (`YYYY-MM-DD` or empty string); cast in staging.
+            description: Date sold. A `date` since the 2026-11 migration (text before).
           - name: updated_at
-            description: Last edit time, stored as text; cast in staging.
+            description: Last edit time. A `timestamptz` since the 2026-11 migration (text before).
+
+      - name: labor_log
+        description: >
+          Hours worked on the business, logged with the Metabase "Log hours"
+          action. Optional haul tag so hours can be charged to a sourcing event.
+        columns:
+          - name: entry_id
+            data_tests: [unique, not_null]
+          - name: work_date
+            data_tests: [not_null]
+          - name: hours
+            data_tests:
+              - not_null
+              - between:
+                  arguments:
+                    min_value: 0
+                    max_value: 24

@@ -9,12 +9,32 @@ exposures:
     description: >
       Main Metabase dashboard: sales KPIs and trends, category and platform
       breakdowns, inventory aging and stale stock, consignor payouts and top
-      sales. Filterable by sold date, category and platform.
+      sales, plus hauls, hours and repricing. Filterable by sold date,
+      category and platform.
     depends_on:
       - ref('fct_sales')
       - ref('fct_inventory')
       - ref('dim_items')
       - ref('rpt_kpis')
       - ref('rpt_consignor_payouts')
+      - ref('rpt_haul_performance')
+      - ref('rpt_hours_monthly')
+      - ref('rpt_reprice_suggestions')
+    owner:
+      name: Alejandro Medrano
+
+  - name: weekly_business_email
+    label: Weekly business email
+    type: notebook
+    maturity: medium
+    url: https://github.com/manofmanana/medrano-mercantile/blob/main/airflow/dags/mercantile_weekly_report.py
+    description: >
+      Sunday email from Airflow: last week's sales and profit, year to date
+      with hours and profit per hour, and this week's reprice suggestions.
+    depends_on:
+      - ref('fct_sales')
+      - ref('rpt_kpis')
+      - ref('rpt_hours_monthly')
+      - ref('rpt_reprice_suggestions')
     owner:
       name: Alejandro Medrano
