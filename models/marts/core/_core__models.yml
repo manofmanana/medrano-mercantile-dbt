@@ -93,3 +93,29 @@ models:
         description: "True when on hand longer than `var('stale_inventory_days')` (default 60)."
       - name: potential_profit
         description: Profit if sold at asking price (after consignor share and acquisition cost; before fees).
+
+  - name: fct_labor_hours
+    description: >
+      Hours worked by day, haul, activity and basis. From the first day hours
+      are logged in `public.labor_log` only logged hours count; earlier work
+      is estimated from items listed, buyers met and hauls picked up, using the
+      `est_hours_*` vars. `basis` says which is which.
+    columns:
+      - name: work_date
+        description: Day the work happened.
+        data_tests: [not_null]
+      - name: work_month
+        description: First day of that month.
+      - name: haul
+        description: Sourcing event the time belongs to. Null for general work.
+      - name: activity
+        description: What the time was spent on.
+      - name: basis
+        description: "`logged` (real entry) or `estimated` (rule of thumb, before logging began)."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["logged", "estimated"]
+      - name: hours
+        description: Hours.
+        data_tests: [not_null, non_negative]

@@ -1,0 +1,16 @@
+version: 2
+
+snapshots:
+  - name: snap_items
+    relation: source('mercantile', 'items')
+    description: >
+      Type-2 history of `public.items`. The source table is updated in place,
+      so this is the only record of how an item's asking price, status and
+      haul changed over time. Rebuilt with every `dbt build` (every 15 minutes),
+      so changes made between two runs collapse into one.
+    config:
+      schema: snapshots
+      unique_key: sku
+      strategy: check
+      check_cols: [status, asking_price, sale_price, platform, haul]
+      hard_deletes: invalidate

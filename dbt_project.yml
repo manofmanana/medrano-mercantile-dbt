@@ -15,6 +15,18 @@ vars:
   # Items older than this many days without selling count as "stale" inventory.
   stale_inventory_days: 60
 
+  # Rough labor estimates, used only for work done before the first hours
+  # were logged in public.labor_log. Logged hours always replace them.
+  est_hours_per_listing: 0.33      # clean, test, photograph and list one item
+  est_hours_per_sale: 0.75         # messages, meetup and travel for one buyer on one day
+  est_hours_per_haul_pickup: 2.0   # sourcing trip for a tagged haul
+
+  # Repricing rules for the weekly report.
+  reprice_after_days_at_price: 7   # no sale this long at one price: drop it
+  reprice_drop_pct: 0.10
+  bundle_below_price: 25           # list these in a bundle or lot, not alone
+  clear_out_after_days: 60         # offer to the wholesale buyer, bundle or donate
+
 models:
   medrano:
     +persist_docs:

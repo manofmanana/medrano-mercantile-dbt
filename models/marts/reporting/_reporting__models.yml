@@ -84,3 +84,87 @@ models:
       - name: payout_owed
         description: Lifetime amount owed to the consignor for sold items.
         data_tests: [non_negative]
+
+  - name: rpt_hours_monthly
+    description: >
+      One row per month with hours worked, revenue, net profit and profit per
+      hour. `hours_basis` shows whether the month's hours are logged,
+      estimated or a mix.
+    columns:
+      - name: month_start
+        description: First day of the month.
+        data_tests: [unique, not_null]
+      - name: logged_hours
+        description: Hours entered in the labor log.
+        data_tests: [non_negative]
+      - name: estimated_hours
+        description: Rule-of-thumb hours for work done before logging began.
+        data_tests: [non_negative]
+      - name: total_hours
+        description: Logged plus estimated hours.
+      - name: profit_per_hour
+        description: Net profit ÷ total hours; null when no hours.
+      - name: hours_basis
+        description: "`logged`, `estimated`, `mixed` or `none`."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["logged", "estimated", "mixed", "none"]
+
+  - name: rpt_haul_performance
+    description: >
+      One row per haul (sourcing event): items in, items sold, revenue, profit,
+      open stock, hours and profit per hour. Items without a haul roll up to
+      `(no haul)`.
+    columns:
+      - name: haul
+        description: Haul name.
+        data_tests: [unique, not_null]
+      - name: sell_through_rate
+        description: Share of the haul's items that have sold.
+        data_tests:
+          - between:
+              arguments:
+                min_value: 0
+                max_value: 1
+      - name: total_hours
+        description: Logged plus estimated hours charged to the haul.
+        data_tests: [non_negative]
+      - name: profit_per_hour
+        description: Net profit ÷ total hours.
+
+  - name: rpt_reprice_suggestions
+    description: >
+      One row per listed item with this week's pricing action: `Clear out`
+      after `clear_out_after_days` on hand, `Bundle` under
+      `bundle_below_price`, `Drop price` after `reprice_after_days_at_price`
+      days at one price (suggested price rounded down to $5), otherwise `Hold`.
+      Price history comes from the `snap_items` snapshot.
+    columns:
+      - name: sku
+        description: Business key.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('fct_inventory')
+                field: sku
+      - name: action
+        description: What to do this week.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["Clear out", "Drop price", "Bundle", "Hold"]
+      - name: action_order
+        description: Sort key for `action`, most urgent first.
+      - name: suggested_price
+        description: New asking price for `Drop price`; null otherwise.
+        data_tests: [non_negative]
+      - name: price_since
+        description: Date the current asking price was set.
+      - name: days_at_price
+        description: Days at the current asking price.
+      - name: reason
+        description: One-line explanation shown in the weekly email.
